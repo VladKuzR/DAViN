@@ -21,21 +21,18 @@ const DatePickerContainer = styled.div`
   }
 
   .react-datepicker {
-    background: ${props => props.theme.cardBg};
+    background: ${props => props.theme.body};
     border: 1px solid ${props => props.theme.cardBorder};
     color: ${props => props.theme.text};
   }
 
   .react-datepicker__month-container {
-    background: ${props => props.theme.cardBg};
+    background: ${props => props.theme.body};
     border-radius: 5px;
-    background-color: ${props => props.theme.body};
-
-
   }
 
   .react-datepicker__header {
-    background: ${props => props.theme.cardBg};
+    background: ${props => props.theme.body};
     border-bottom: 1px solid ${props => props.theme.cardBorder};
   }
 
@@ -46,41 +43,68 @@ const DatePickerContainer = styled.div`
 
   .react-datepicker__day {
     color: ${props => props.theme.text};
-    background: ${props => props.theme.cardBg};
     
     &:hover {
       background: ${props => props.theme.accent};
-      color: ${props => props.theme.cardBg};
+      color: ${props => props.theme.body};
     }
   }
 
   .react-datepicker__day--selected {
     background: ${props => props.theme.accent};
-    color: ${props => props.theme.cardBg};
+    color: ${props => props.theme.body} !important;
   }
 
   .react-datepicker__day--keyboard-selected {
     background: ${props => props.theme.accent};
-    color: ${props => props.theme.cardBg};
+    color: ${props => props.theme.body} !important;
   }
 `;
 
 export const DateRangePicker = ({ startDate, endDate, onChange, minDate, maxDate }) => {
+  // Convert string dates to Date objects if needed
+  const parseDate = (date) => {
+    if (!date) return null;
+    return date instanceof Date ? date : new Date(date);
+  };
+
+  const handleStartDateChange = (date) => {
+    onChange({
+      start: date,
+      end: endDate
+    });
+  };
+
+  const handleEndDateChange = (date) => {
+    onChange({
+      start: startDate,
+      end: date
+    });
+  };
+
   return (
     <DatePickerContainer>
       <ReactDatePicker
-        selected={startDate}
-        onChange={(date) => onChange({ start: date, end: endDate })}
+        selected={parseDate(startDate)}
+        onChange={handleStartDateChange}
+        selectsStart
+        startDate={parseDate(startDate)}
+        endDate={parseDate(endDate)}
         placeholderText="Start Date"
-        minDate={minDate}
-        maxDate={endDate || maxDate}
+        minDate={parseDate(minDate)}
+        maxDate={parseDate(endDate || maxDate)}
+        dateFormat="MM/dd/yyyy"
       />
       <ReactDatePicker
-        selected={endDate}
-        onChange={(date) => onChange({ start: startDate, end: date })}
+        selected={parseDate(endDate)}
+        onChange={handleEndDateChange}
+        selectsEnd
+        startDate={parseDate(startDate)}
+        endDate={parseDate(endDate)}
         placeholderText="End Date"
-        minDate={startDate || minDate}
-        maxDate={maxDate}
+        minDate={parseDate(startDate || minDate)}
+        maxDate={parseDate(maxDate)}
+        dateFormat="MM/dd/yyyy"
       />
     </DatePickerContainer>
   );

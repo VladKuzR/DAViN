@@ -68,9 +68,29 @@ const CheckboxItem = styled.label`
         background: ${props => props.theme.sliderTrackBg};
     }
 
-    input {
+    input[type="checkbox"] {
         margin-right: 0.5rem;
         accent-color: ${props => props.theme.accent};
+        appearance: none;
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid ${props => props.theme.accent};
+        border-radius: 3px;
+        cursor: pointer;
+        position: relative;
+
+        &:checked {
+            background-color: ${props => props.theme.accent};
+            &:after {
+                content: '✓';
+                position: absolute;
+                color: ${props => props.theme.body};
+                font-size: 12px;
+                left: 2px;
+                top: -1px;
+            }
+        }
     }
 `;
 
@@ -170,4 +190,4 @@ export const MultiSelectCheckbox = ({ options, value, onChange, label, identifie
             )}
         </DropdownContainer>
     );
-}; 
+};
