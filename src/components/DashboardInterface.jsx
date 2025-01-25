@@ -45,25 +45,6 @@ const DropdownFilterSection = styled(FilterSection)`
     z-index: ${({ $isOpen }) => $isOpen ? 100000 : 3};
 `;
 
-const ThemeToggle = styled.button`
-    position: fixed;
-    top: 2rem;
-    right: 2rem;
-    background: ${props => props.theme.accent};
-    color: ${props => props.theme.cardBg};
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    cursor: pointer;
-    box-shadow: 0 0 15px ${props => props.theme.shadowColor};
-    transition: all 0.3s ease;
-
-    &:hover {
-        transform: scale(1.1);
-    }
-`;
-
 const SubmitButton = styled.button`
     width: 100%;
     background: ${props => props.theme.accent};
@@ -184,11 +165,8 @@ const DashboardInterface = () => {
     };
 
     return (
-        <ThemeProvider theme={isDarkTheme ? darkTheme : lightTheme}>
+        <ThemeProvider theme={darkTheme}>
             <DashboardContainer>
-                <ThemeToggle onClick={() => setIsDarkTheme(!isDarkTheme)}>
-                    {isDarkTheme ? '☀️' : '🌙'}
-                </ThemeToggle>
                 <Title>Project Analytics Interface</Title>
                 <FilterGrid>
                     <FilterSection>
