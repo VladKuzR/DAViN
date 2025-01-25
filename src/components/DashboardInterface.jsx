@@ -58,7 +58,7 @@ const ThemeToggle = styled.button`
 
 const SubmitButton = styled.button`
     background: ${props => props.theme.accent};
-    color: ${props => props.theme.cardBg};
+    color: ${props => props.theme.body};
     border: none;
     border-radius: 10px;
     padding: 1rem 2rem;
@@ -133,6 +133,7 @@ const DashboardInterface = () => {
     useEffect(() => {
         const loadData = async () => {
             const airtableData = await fetchAirtableData();
+            console.log('Division data received in component:', airtableData?.processed?.divisions);
             setData(airtableData);
             if (airtableData?.processed) {
                 setFilters(prev => ({

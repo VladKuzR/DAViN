@@ -26,6 +26,14 @@ const DatePickerContainer = styled.div`
     color: ${props => props.theme.text};
   }
 
+  .react-datepicker__month-container {
+    background: ${props => props.theme.cardBg};
+    border-radius: 5px;
+    background-color: ${props => props.theme.body};
+
+
+  }
+
   .react-datepicker__header {
     background: ${props => props.theme.cardBg};
     border-bottom: 1px solid ${props => props.theme.cardBorder};
@@ -38,10 +46,22 @@ const DatePickerContainer = styled.div`
 
   .react-datepicker__day {
     color: ${props => props.theme.text};
+    background: ${props => props.theme.cardBg};
+    
     &:hover {
       background: ${props => props.theme.accent};
       color: ${props => props.theme.cardBg};
     }
+  }
+
+  .react-datepicker__day--selected {
+    background: ${props => props.theme.accent};
+    color: ${props => props.theme.cardBg};
+  }
+
+  .react-datepicker__day--keyboard-selected {
+    background: ${props => props.theme.accent};
+    color: ${props => props.theme.cardBg};
   }
 `;
 

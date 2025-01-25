@@ -22,14 +22,12 @@ const DropdownButton = styled.div`
 `;
 
 const DropdownContent = styled.div`
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+    position: relative;
+    width: 100%;
+    margin-top: 0.5rem;
     background: ${props => props.theme.body};
     border: 1px solid ${props => props.theme.cardBorder};
     border-radius: 5px;
-    margin-top: 0.5rem;
     max-height: 300px;
     overflow-y: auto;
     z-index: 99999;
@@ -86,13 +84,14 @@ const ButtonsContainer = styled.div`
 
 const ActionButton = styled.button`
     background: ${props => props.theme.accent};
-    color: ${props => props.theme.cardBg};
+    color: ${props => props.theme.body};
     border: none;
     border-radius: 4px;
     padding: 0.3rem 0.8rem;
     cursor: pointer;
     font-size: 0.8rem;
     transition: opacity 0.2s;
+    font-weight: 600;
 
     &:hover {
         opacity: 0.8;
