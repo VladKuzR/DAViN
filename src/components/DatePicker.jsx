@@ -62,22 +62,26 @@ const DatePickerContainer = styled.div`
 `;
 
 export const DateRangePicker = ({ startDate, endDate, onChange, minDate, maxDate }) => {
-  // Convert string dates to Date objects if needed
   const parseDate = (date) => {
     if (!date) return null;
-    return date instanceof Date ? date : new Date(date);
+    const parsedDate = date instanceof Date ? date : new Date(date);
+    // Ensure we're working with the date portion only, removing time components
+    if (!isNaN(parsedDate.getTime())) {
+      parsedDate.setHours(0, 0, 0, 0);
+    }
+    return isNaN(parsedDate.getTime()) ? null : parsedDate;
   };
 
   const handleStartDateChange = (date) => {
     onChange({
       start: date,
-      end: endDate
+      end: parseDate(endDate)
     });
   };
 
   const handleEndDateChange = (date) => {
     onChange({
-      start: startDate,
+      start: parseDate(startDate),
       end: date
     });
   };
@@ -90,10 +94,14 @@ export const DateRangePicker = ({ startDate, endDate, onChange, minDate, maxDate
         selectsStart
         startDate={parseDate(startDate)}
         endDate={parseDate(endDate)}
-        placeholderText="Start Date"
         minDate={parseDate(minDate)}
-        maxDate={parseDate(endDate || maxDate)}
+        maxDate={parseDate(maxDate)}
+        placeholderText="Start Date"
         dateFormat="MM/dd/yyyy"
+        isClearable
+        showMonthDropdown
+        showYearDropdown
+        dropdownMode="select"
       />
       <ReactDatePicker
         selected={parseDate(endDate)}
@@ -101,10 +109,14 @@ export const DateRangePicker = ({ startDate, endDate, onChange, minDate, maxDate
         selectsEnd
         startDate={parseDate(startDate)}
         endDate={parseDate(endDate)}
-        placeholderText="End Date"
-        minDate={parseDate(startDate || minDate)}
+        minDate={parseDate(startDate)} // Only use startDate as min
         maxDate={parseDate(maxDate)}
+        placeholderText="End Date"
         dateFormat="MM/dd/yyyy"
+        isClearable
+        showMonthDropdown
+        showYearDropdown
+        dropdownMode="select"
       />
     </DatePickerContainer>
   );
