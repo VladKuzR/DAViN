@@ -16,6 +16,15 @@
         "styled-components": "^6.1.14",
         "web-vitals": "^2.1.4"
     },
+    "devDependencies": {
+        "eslint": "^8.56.0",
+        "eslint-config-airbnb": "^19.0.4",
+        "eslint-plugin-import": "^2.30.0",
+        "eslint-plugin-jsx-a11y": "^6.10.0",
+        "eslint-plugin-react": "^7.36.1",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    },
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
