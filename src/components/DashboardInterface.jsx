@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { handleSubmit } from '../services/formHandler';
 
 const DashboardContainer = styled.div`
-    background: ${props => props.theme.body};
+    background: rgba(0, 0, 0, 0.7);  // Semi-transparent dark background
     height: 100vh;
     color: ${props => props.theme.text};
     padding: 0.75rem;
@@ -17,6 +17,7 @@ const DashboardContainer = styled.div`
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    backdrop-filter: blur(10px);  // Adds blur effect to background
 `;
 
 const FilterGrid = styled.div`
@@ -28,11 +29,11 @@ const FilterGrid = styled.div`
 `;
 
 const FilterSection = styled.div`
-    background: ${props => props.theme.cardBg};
-    border: 1px solid ${props => props.theme.cardBorder};
+    background: rgba(0, 20, 30, 0.5);  // Semi-transparent dark blue
+    border: 1px solid rgba(0, 255, 255, 0.1);  // Subtle cyan border
     border-radius: 8px;
     padding: 0.5rem;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     position: relative;
     z-index: 1;
     flex: 1;
@@ -46,10 +47,9 @@ const DropdownFilterSection = styled(FilterSection)`
 `;
 
 const SubmitButton = styled.button`
-    width: 100%;
-    background: ${props => props.theme.accent};
-    color: ${props => props.theme.body};
-    border: none;
+    background: rgba(0, 255, 255, 0.2);  // Semi-transparent cyan
+    color: #00ffff;
+    border: 1px solid rgba(0, 255, 255, 0.3);
     border-radius: 8px;
     padding: 0.5rem;
     font-size: 0.9rem;
@@ -59,10 +59,11 @@ const SubmitButton = styled.button`
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
+    backdrop-filter: blur(5px);
 
     &:hover {
+        background: rgba(0, 255, 255, 0.3);
         transform: translateY(-1px);
-        box-shadow: 0 3px 15px ${props => props.theme.shadowColor};
     }
 `;
 
