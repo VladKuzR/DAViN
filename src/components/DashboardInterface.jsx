@@ -10,27 +10,35 @@ import { handleSubmit } from '../services/formHandler';
 
 const DashboardContainer = styled.div`
     background: ${props => props.theme.body};
-    min-height: 100vh;
+    height: 100vh;
     color: ${props => props.theme.text};
-    padding: 2rem;
+    padding: 0.75rem;
     font-family: 'Rajdhani', sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 `;
 
 const FilterGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    margin: 0.5rem 0;
 `;
 
 const FilterSection = styled.div`
     background: ${props => props.theme.cardBg};
     border: 1px solid ${props => props.theme.cardBorder};
-    border-radius: 10px;
-    padding: 1.5rem;
+    border-radius: 8px;
+    padding: 0.5rem;
     backdrop-filter: blur(10px);
     position: relative;
     z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 `;
 
 const DropdownFilterSection = styled(FilterSection)`
@@ -57,27 +65,23 @@ const ThemeToggle = styled.button`
 `;
 
 const SubmitButton = styled.button`
+    width: 100%;
     background: ${props => props.theme.accent};
     color: ${props => props.theme.body};
     border: none;
-    border-radius: 10px;
-    padding: 1rem 2rem;
-    font-size: 1.2rem;
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
     cursor: pointer;
-    margin-top: 2rem;
+    margin-top: 0.5rem;
     transition: all 0.3s ease;
-    box-shadow: 0 0 15px ${props => props.theme.shadowColor};
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     font-weight: 600;
 
     &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px ${props => props.theme.shadowColor};
-    }
-
-    &:active {
-        transform: translateY(0);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 15px ${props => props.theme.shadowColor};
     }
 `;
 
@@ -111,6 +115,16 @@ const CheckboxWrapper = styled.label`
         cursor: pointer;
         accent-color: ${props => props.theme.accent};
     }
+`;
+
+const FilterHeading = styled.h3`
+    font-size: 0.9rem;
+    margin: 0 0 0.3rem 0;
+`;
+
+const Title = styled.h1`
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem 0;
 `;
 
 const DashboardInterface = () => {
@@ -175,10 +189,10 @@ const DashboardInterface = () => {
                 <ThemeToggle onClick={() => setIsDarkTheme(!isDarkTheme)}>
                     {isDarkTheme ? '☀️' : '🌙'}
                 </ThemeToggle>
-                <h1>Project Analytics Interface</h1>
+                <Title>Project Analytics Interface</Title>
                 <FilterGrid>
                     <FilterSection>
-                        <h3>Phase Range</h3>
+                        <FilterHeading>Phase Range</FilterHeading>
                         <RangeSlider
                             value={filters.phase}
                             onChange={(value) => setFilters({ ...filters, phase: value })}
@@ -188,7 +202,7 @@ const DashboardInterface = () => {
                     </FilterSection>
 
                     <DropdownFilterSection $isOpen={openDropdown === 'division'}>
-                        <h3>Division</h3>
+                        <FilterHeading>Division</FilterHeading>
                         <MultiSelectCheckbox
                             options={data?.processed?.divisions || []}
                             value={filters.divisions}
@@ -199,7 +213,7 @@ const DashboardInterface = () => {
                     </DropdownFilterSection>
 
                     <DropdownFilterSection $isOpen={openDropdown === 'wbs'}>
-                        <h3>WBS Category</h3>
+                        <FilterHeading>WBS Category</FilterHeading>
                         <MultiSelectCheckbox
                             options={data?.processed?.wbsCategories || []}
                             value={filters.wbsCategory}
@@ -210,7 +224,7 @@ const DashboardInterface = () => {
                     </DropdownFilterSection>
 
                     <FilterSection>
-                        <h3>Duration Range</h3>
+                        <FilterHeading>Duration Range</FilterHeading>
                         <RangeSlider
                             value={filters.duration}
                             onChange={(value) => setFilters({ ...filters, duration: value })}
@@ -220,7 +234,7 @@ const DashboardInterface = () => {
                     </FilterSection>
 
                     <FilterSection>
-                        <h3>Completion Status</h3>
+                        <FilterHeading>Completion Status</FilterHeading>
                         <CheckboxContainer>
                             <Checkbox
                                 checked={filters.completionStatus.completed}
@@ -236,7 +250,7 @@ const DashboardInterface = () => {
                     </FilterSection>
 
                     <FilterSection>
-                        <h3>Date Range</h3>
+                        <FilterHeading>Date Range</FilterHeading>
                         <DateRangePicker
                             startDate={filters.startDate}
                             endDate={filters.endDate}
