@@ -88,3 +88,6 @@ public/
 
 # Local Netlify folder
 .netlify/
+
+# Config
+vanilla/services/config.js

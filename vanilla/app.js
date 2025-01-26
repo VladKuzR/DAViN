@@ -22,30 +22,16 @@ $(document).ready(function () {
         const $minValue = $(`#${sliderId}MinValue`);
         const $maxValue = $(`#${sliderId}MaxValue`);
 
-        function setInitialValues() {
-            const min = parseFloat($minInput.attr('min'));
-            const max = parseFloat($maxInput.attr('max'));
-            $minInput.val(min);
-            $maxInput.val(max);
-            state[stateKey] = [min, max];
-            updateDisplay();
-        }
-
-        function setMinMax() {
+        function updateSliderValues() {
             const minVal = parseFloat($minInput.val());
             const maxVal = parseFloat($maxInput.val());
 
-            if (minVal > maxVal) {
-                if ($(document.activeElement).is($minInput)) {
-                    $maxInput.val(minVal);
-                } else {
-                    $minInput.val(maxVal);
-                }
-            }
+            // Always show integers in the range-values spans
+            $(`#${sliderId.slice(0, -5)}MinValue`).text(Math.round(minVal));
+            $(`#${sliderId.slice(0, -5)}MaxValue`).text(Math.round(maxVal));
         }
 
-        function updateDisplay() {
-            setMinMax();
+        function updateProgress() {
             const min = parseFloat($minInput.val());
             const max = parseFloat($maxInput.val());
             const range = parseFloat($maxInput.attr('max')) - parseFloat($minInput.attr('min'));
@@ -53,26 +39,30 @@ $(document).ready(function () {
             const percent2 = ((max - $minInput.attr('min')) / range) * 100;
 
             $progress.css({
-                left: `${percent1}%`,
-                width: `${percent2 - percent1}%`
+                left: `${percent1}% `,
+                width: `${percent2 - percent1}% `
             });
 
-            // Update the display values with current slider values
-            if (sliderId === 'durationRange') {
-                $minValue.text(parseFloat(min).toFixed(1));
-                $maxValue.text(parseFloat(max).toFixed(1));
-            } else {
-                $minValue.text(parseInt(min));
-                $maxValue.text(parseInt(max));
-            }
+            // Update numerical display
+            updateSliderValues();
+
             state[stateKey] = [min, max];
         }
 
-        // Update on both input and change events for better responsiveness
-        $minInput.on('input', updateDisplay);
-        $maxInput.on('input', updateDisplay);
+        // Update values on any slider movement
+        $minInput.on('input', function () {
+            updateProgress();
+            updateSliderValues();
+        });
 
-        setInitialValues();
+        $maxInput.on('input', function () {
+            updateProgress();
+            updateSliderValues();
+        });
+
+        // Initial setup
+        updateProgress();
+        updateSliderValues();
     }
 
     // Initialize Multi-select Dropdowns
@@ -89,10 +79,10 @@ $(document).ready(function () {
         // Populate options
         options.forEach(option => {
             const $option = $(`
-                <label class="checkbox-wrapper">
-                    <input type="checkbox" value="${option.value}" checked>
-                    <span>${option.label}</span>
-                </label>
+            <label class="checkbox-wrapper">
+                <input type="checkbox" value="${option.value}" checked>
+                <span>${option.label}</span>
+            </label>
             `);
             $optionsContainer.append($option);
         });
@@ -188,8 +178,8 @@ $(document).ready(function () {
                 // Get actual min/max values
                 const phaseMin = Math.min(...data.processed.phases);
                 const phaseMax = Math.max(...data.processed.phases);
-                const durationMin = Math.min(...data.processed.durations);
-                const durationMax = Math.max(...data.processed.durations);
+                const durationMin = Math.round(Math.min(...data.processed.durations));
+                const durationMax = Math.round(Math.max(...data.processed.durations));
 
                 console.log('Phase range:', phaseMin, phaseMax); // Debug log
                 console.log('Duration range:', durationMin, durationMax); // Debug log
@@ -208,10 +198,16 @@ $(document).ready(function () {
                     $(this).attr({
                         'min': durationMin,
                         'max': durationMax,
-                        'step': (durationMax - durationMin),
+                        'step': 1,
                         'value': $(this).is('#durationMin') ? durationMin : durationMax
                     });
                 });
+
+                // Set initial span values
+                $('#phaseMinValue').text(phaseMin);
+                $('#phaseMaxValue').text(phaseMax);
+                $('#durationMinValue').text(Math.round(durationMin));
+                $('#durationMaxValue').text(Math.round(durationMax));
 
                 // Initialize components with real data
                 initMultiSelect('divisionSelect', data.processed.divisions);

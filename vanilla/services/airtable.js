@@ -1,4 +1,4 @@
-const AIRTABLE_API_KEY = 'pato8O3LytSeocW9c.43aeaeda2e6607fb12a0672d432a799392a517ea11fc9c66a2eb72d0f0a9bc91'
+const AIRTABLE_API_KEY = config.AIRTABLE_API_KEY;
 const BASE_ID = 'appuojNVDfs9U7ccy';
 const MAIN_TABLE_ID = 'tbl60mtZmcPavvtQH';
 const DIVISIONS_TABLE_ID = 'tblhgavnKoFlFD8SC';
