@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Analytics Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <h1 class="title">Project Analytics Interface</h1>
+        <div class="filter-grid">
+            <!-- Phase Range Section -->
+            <div class="filter-section">
+                <h3 class="filter-heading">Phase Range</h3>
+                <div class="range-slider-container">
+                    <div class="range-slider" id="phaseRange">
+                        <input type="range" class="range-input" id="phaseMin">
+                        <input type="range" class="range-input" id="phaseMax">
+                        <div class="range-track"></div>
+                        <div class="range-progress"></div>
+                    </div>
+                    <div class="range-values">
+                        <span id="phaseMinValue"></span> - <span id="phaseMaxValue"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Division Section -->
+            <div class="filter-section dropdown-section">
+                <h3 class="filter-heading">Division</h3>
+                <div class="multi-select" id="divisionSelect">
+                    <div class="select-button">
+                        <span class="selected-count">0 of 0 selected</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="dropdown-content">
+                        <div class="buttons-container">
+                            <button class="select-all">Select All</button>
+                            <button class="unselect-all">Unselect All</button>
+                        </div>
+                        <div class="options-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WBS Category Section -->
+            <div class="filter-section dropdown-section">
+                <h3 class="filter-heading">WBS Category</h3>
+                <div class="multi-select" id="wbsSelect">
+                    <div class="select-button">
+                        <span class="selected-count">0 of 0 selected</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="dropdown-content">
+                        <div class="buttons-container">
+                            <button class="select-all">Select All</button>
+                            <button class="unselect-all">Unselect All</button>
+                        </div>
+                        <div class="options-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duration Range Section -->
+            <div class="filter-section">
+                <h3 class="filter-heading">Duration Range</h3>
+                <div class="range-slider-container">
+                    <div class="range-slider" id="durationRange">
+                        <input type="range" class="range-input" id="durationMin">
+                        <input type="range" class="range-input" id="durationMax">
+                        <div class="range-track"></div>
+                        <div class="range-progress"></div>
+                    </div>
+                    <div class="range-values">
+                        <span id="durationMinValue"></span> - <span id="durationMaxValue"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completion Status Section -->
+            <div class="filter-section">
+                <h3 class="filter-heading">Completion Status</h3>
+                <div class="checkbox-container">
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox" checked id="completedCheckbox">
+                        <span>Completed</span>
+                    </label>
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox" checked id="incompletedCheckbox">
+                        <span>Incompleted</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Date Range Section -->
+            <div class="filter-section">
+                <h3 class="filter-heading">Date Range</h3>
+                <div class="date-picker-container">
+                    <input type="text" id="startDate" placeholder="Start Date" class="date-input">
+                    <input type="text" id="endDate" placeholder="End Date" class="date-input">
+                </div>
+            </div>
+        </div>
+
+        <button class="submit-button" id="submitButton">SUBMIT</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="services/airtable.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
