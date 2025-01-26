@@ -137,18 +137,6 @@ $(document).ready(function () {
     }
 
     // Initialize Date Pickers
-    flatpickr('#startDate', {
-        onChange: ([date]) => {
-            state.startDate = date;
-        }
-    });
-
-    flatpickr('#endDate', {
-        onChange: ([date]) => {
-            state.endDate = date;
-        }
-    });
-
     // Initialize Completion Status
     $('#completedCheckbox').on('change', function () {
         state.completionStatus.completed = this.checked;
@@ -160,8 +148,64 @@ $(document).ready(function () {
 
     // Initialize Submit Button
     $('#submitButton').on('click', function () {
-        console.log('Submitted state:', state);
-        // Here you would typically send the state to your backend
+        const selectedData = {
+            phase: {
+                min: parseInt($('#phaseMin').val()),
+                max: parseInt($('#phaseMax').val())
+            },
+            duration: {
+                min: parseInt($('#durationMin').val()),
+                max: parseInt($('#durationMax').val())
+            },
+            divisions: $('#divisionSelect').find('input:checked').map(function () {
+                return {
+                    value: $(this).val(),
+                    label: $(this).next('span').text()
+                };
+            }).get(),
+            wbsCategories: $('#wbsSelect').find('input:checked').map(function () {
+                return {
+                    value: $(this).val(),
+                    label: $(this).next('span').text()
+                };
+            }).get(),
+            completionStatus: {
+                completed: $('#completedCheckbox').is(':checked'),
+                incompleted: $('#incompletedCheckbox').is(':checked')
+            },
+            dateRange: {
+                startDate: $('#startDate').val(),
+                endDate: $('#endDate').val()
+            }
+        };
+
+        const outputData = {
+            filters: {
+                phase: {
+                    min: selectedData.phase.min,
+                    max: selectedData.phase.max
+                },
+                duration: {
+                    min: selectedData.duration.min,
+                    max: selectedData.duration.max
+                },
+                divisions: selectedData.divisions.map(d => ({
+                    id: d.value,
+                    name: d.label
+                })),
+                wbsCategories: selectedData.wbsCategories.map(w => ({
+                    id: w.value,
+                    name: w.label
+                })),
+                completionStatus: selectedData.completionStatus,
+                dateRange: {
+                    from: selectedData.dateRange.startDate,
+                    to: selectedData.dateRange.endDate
+                }
+            }
+        };
+
+        console.log(JSON.stringify(outputData, null, 2));
     });
 
     // Initialize components
@@ -216,10 +260,36 @@ $(document).ready(function () {
                 // Initialize date pickers with real date ranges
                 const dateConfig = {
                     minDate: data.ranges.dates.min,
-                    maxDate: data.ranges.dates.max
+                    maxDate: data.ranges.dates.max,
+                    defaultDate: data.ranges.dates.min, // Set default date for start
+                    disable: [
+                        {
+                            from: new Date(0), // Beginning of time
+                            to: new Date(data.ranges.dates.min - 86400000) // Day before min date
+                        },
+                        {
+                            from: new Date(data.ranges.dates.max.getTime() + 86400000), // Day after max date
+                            to: new Date(8640000000000000) // End of time
+                        }
+                    ],
+                    dateFormat: "Y-m-d",
+                    onChange: ([date]) => {
+                        state.startDate = date;
+                    }
                 };
+
+                // Initialize start date picker
                 flatpickr('#startDate', dateConfig);
-                flatpickr('#endDate', dateConfig);
+
+                // Initialize end date picker with max date as default
+                const endDateConfig = {
+                    ...dateConfig,
+                    defaultDate: data.ranges.dates.max,
+                    onChange: ([date]) => {
+                        state.endDate = date;
+                    }
+                };
+                flatpickr('#endDate', endDateConfig);
 
                 // Reinitialize range sliders with new values
                 initRangeSlider('phaseRange', 'phase');
