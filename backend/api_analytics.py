@@ -6,11 +6,21 @@ from document_reference import DocumentReference
 from construction_ai_agent import ConstructionAIAgent
 import os
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables
 load_dotenv()
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to be more specific in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize Airtable
 AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY")

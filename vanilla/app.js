@@ -169,9 +169,39 @@ $(document).ready(function () {
     });
 
     // Initialize Submit Button
-    $('#submitButton').on('click', function () {
-        console.log('Submitted state:', state);
-        // Here you would typically send the state to your backend
+    $('#submitButton').on('click', async function () {
+        try {
+            const response = await fetch('http://localhost:8000/api/analytics', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    selected_divisions: state.divisions.map(d => d.value),
+                    phase_range: state.phase,
+                    wbs_categories: state.wbsCategory.map(w => w.value),
+                    duration_range: state.duration
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('API Response:', data);
+            
+            // Here you can process the response data and update your UI
+            // For example:
+            // renderResults(data.items);
+            // showInsights(data.ai_insights);
+            // displayDocuments(data.document_references);
+
+        } catch (error) {
+            console.error('Error submitting data:', error);
+            // Show error message to user
+            alert('Failed to submit data. Please try again.');
+        }
     });
 
     // Initialize components
