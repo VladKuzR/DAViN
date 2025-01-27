@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-dotenv
+airtable-python-wrapper
+openai
+pydantic
+requests
+python-dateutil
+PyMuPDF 
