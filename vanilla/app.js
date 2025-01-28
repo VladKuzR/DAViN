@@ -168,39 +168,62 @@ $(document).ready(function () {
         state.completionStatus.incompleted = this.checked;
     });
 
-    // Initialize Submit Button
+    // Update the loading display function
+    function showLoading(message) {
+        const resultsContainer = document.getElementById('resultsContainer');
+        if (!resultsContainer) return;
+        
+        resultsContainer.innerHTML = `
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-message">${message}</div>
+                <div class="loading-submessage">This may take up to 30 seconds...</div>
+            </div>
+        `;
+    }
+
+    // Update the submit button handler
     $('#submitButton').on('click', async function () {
+        console.log('Submit button clicked');
+        
         try {
+            showLoading('Generating AI insights...');
+            
+            const requestPayload = {
+                selected_divisions: state.divisions.map(d => d.value),
+                phase_range: state.phase,
+                wbs_categories: state.wbsCategory.map(w => w.value),
+                duration_range: state.duration
+            };
+            console.log('Sending request with payload:', requestPayload);
+
             const response = await fetch('http://localhost:8000/api/analytics', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    selected_divisions: state.divisions.map(d => d.value),
-                    phase_range: state.phase,
-                    wbs_categories: state.wbsCategory.map(w => w.value),
-                    duration_range: state.duration
-                })
+                body: JSON.stringify(requestPayload)
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
 
             const data = await response.json();
             console.log('API Response:', data);
-            
-            // Here you can process the response data and update your UI
-            // For example:
-            // renderResults(data.items);
-            // showInsights(data.ai_insights);
-            // displayDocuments(data.document_references);
+
+            if (data.items && data.items.length > 0) {
+                renderInsights(data.items[0].ai_insights);
+            } else {
+                const resultsContainer = document.getElementById('resultsContainer');
+                resultsContainer.innerHTML = '<div class="error">No results found. Try adjusting your filters.</div>';
+            }
 
         } catch (error) {
             console.error('Error submitting data:', error);
-            // Show error message to user
-            alert('Failed to submit data. Please try again.');
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `<div class="error">Failed to generate insights: ${error.message}</div>`;
         }
     });
 
@@ -270,4 +293,69 @@ $(document).ready(function () {
 
     // Fetch real data
     fetchData();
+
+    function renderInsights(insights) {
+        console.log('Rendering insights:', insights);
+        
+        const resultsContainer = document.getElementById('resultsContainer');
+        if (!resultsContainer) {
+            console.error('Results container not found!');
+            return;
+        }
+
+        const insightsContainer = document.createElement('div');
+        insightsContainer.className = 'insights-container';
+
+        // Add a header with item key if available
+        if (insights.item_key) {
+            const header = document.createElement('h3');
+            header.textContent = `Analysis for Item: ${insights.item_key}`;
+            insightsContainer.appendChild(header);
+        }
+
+        const sections = [
+            { title: "Construction Details", content: insights.construction_details },
+            { title: "Required Submittals", content: insights.submittals },
+            { title: "Specifications", content: insights.specifications },
+            { title: "Potential RFIs", content: insights.rfis },
+            { title: "Required Photos", content: insights.photos_required },
+            { title: "Best Practices", content: insights.best_practices },
+            { title: "Safety Considerations", content: insights.safety_considerations },
+            { title: "Dependencies", content: insights.dependencies },
+            { title: "Labor Requirements", content: insights.estimated_labor_hours },
+            { title: "Material Specifications", content: insights.material_specifications },
+            { title: "Quality Control", content: insights.quality_control },
+            { title: "Coordination Notes", content: insights.coordination_notes }
+        ];
+
+        let hasContent = false;
+
+        sections.forEach(({ title, content }) => {
+            if (content) {
+                hasContent = true;
+                const section = document.createElement('div');
+                section.className = 'insight-section';
+                
+                const heading = document.createElement('h4');
+                heading.textContent = title;
+                
+                const text = document.createElement('p');
+                text.textContent = content;
+                
+                section.appendChild(heading);
+                section.appendChild(text);
+                insightsContainer.appendChild(section);
+            }
+        });
+
+        resultsContainer.innerHTML = '';
+        if (hasContent) {
+            resultsContainer.appendChild(insightsContainer);
+        } else {
+            resultsContainer.innerHTML = '<div class="error">No insights available for this item.</div>';
+        }
+    }
+
+    // Add this to verify the script is loaded
+    console.log('Analytics script loaded');
 }); 

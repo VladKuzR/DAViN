@@ -1,39 +1,69 @@
 from typing import Dict, List, Optional
 import os
 from dotenv import load_dotenv
+import logging
 
 class DocumentReference:
     def __init__(self):
         self.division_map = {
-            "Finishes": "09",
-            "Steel": "05",
-            "Openings": "08",
-            "Plumbing": "22",
-            "Thermal and Moisture Protection": "07",
-            "Equipment": "11",
-            "Concrete": "03"
+            "Division 01 - General Requirements": "01",
+            "Division 02 - Existing Conditions": "02",
+            "Division 03 - Concrete": "03",
+            "Division 04 - Masonry": "04",
+            "Division 05 - Metals": "05",
+            "Division 06 - Wood, Plastics, and Composites": "06",
+            "Division 07 - Thermal and Moisture Protection": "07",
+            "Division 08 - Openings": "08",
+            "Division 09 - Finishes": "09",
+            "Division 10 - Specialties": "10",
+            "Division 11 - Equipment": "11",
+            "Division 12 - Furnishings": "12",
+            "Division 13 - Special Construction": "13",
+            "Division 14 - Conveying Equipment": "14",
+            "Division 21 - Fire Suppression": "21",
+            "Division 22 - Plumbing": "22",
+            "Division 23 - Heating Ventilating and Air Conditioning": "23",
+            "Division 26 - Electrical": "26",
+            "Division 27 - Communications": "27",
+            "Division 28 - Electronic Safety and Security": "28",
+            "Division 31 - Earthwork": "31",
+            "Division 32 - Exterior Improvements": "32",
+            "Division 33 - Utilities": "33"
         }
         
-    def get_document_references(self, item_data: Dict) -> Dict[str, str]:
-        """Get relevant document references and content for a construction item"""
-        division = item_data['division']
-        
-        # Get division name from code
-        division_name = next(
-            (name for name, code in self.division_map.items() 
-             if code == division.zfill(2)),
-            "Unknown Division"
-        )
-        
-        specs_content = self._get_division_specific_specs(division_name)
-        submittals_content = self._get_division_specific_submittals(division_name)
-        rfi_content = self._get_division_specific_rfis(division_name)
-        
-        return {
-            'specifications': specs_content,
-            'submittals': submittals_content,
-            'rfis': rfi_content
-        }
+    def get_document_references(self, item_data):
+        try:
+            # Get Division field and handle if it's a list
+            division = item_data.get('Division')
+            if isinstance(division, list):
+                division = division[0] if division else "00"  # Use first division if available
+            elif division is None:
+                division = "00"
+                
+            # Convert division to string and ensure 2 digits
+            division = str(division).zfill(2)
+            
+            logging.debug(f"Processing division: {division}")
+            
+            # Generate document references
+            specifications = f"Section {division}.00 - General Requirements"
+            submittals = f"Submittal {division}.01 - Product Data"
+            rfis = f"RFI {division}.02 - Installation Requirements"
+            
+            return {
+                "specifications": specifications,
+                "submittals": submittals,
+                "rfis": rfis
+            }
+        except Exception as e:
+            logging.error(f"Error processing document references: {e}")
+            logging.debug(f"Item data: {item_data}")
+            logging.debug(f"Division value: {division}, type: {type(division)}")
+            return {
+                "specifications": "Not Available",
+                "submittals": "Not Available",
+                "rfis": "Not Available"
+            }
         
     def _get_division_specific_specs(self, division_name: str) -> str:
         specs = {
