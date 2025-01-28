@@ -1,9 +1,8 @@
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from typing import Optional, Dict, Any, AsyncGenerator
+from typing import Optional, Dict, Any
 from pydantic import BaseModel
-import openai
 
 # Load environment variables
 load_dotenv()
@@ -197,28 +196,3 @@ class ConstructionAIAgent:
         )
 
         return response.choices[0].message.content 
-
-    async def stream_chat_with_insight(self, insights, user_message) -> AsyncGenerator[str, None]:
-        try:
-            # Prepare the context from insights
-            context = self._prepare_context(insights)
-            
-            # Create the messages for the chat
-            messages = [
-                {"role": "system", "content": "You are a helpful construction expert assistant."},
-                {"role": "user", "content": f"Context: {context}\n\nQuestion: {user_message}"}
-            ]
-            
-            # Stream the response from OpenAI
-            response_stream = await openai.ChatCompletion.acreate(
-                model="gpt-4",
-                messages=messages,
-                stream=True
-            )
-            
-            async for chunk in response_stream:
-                if chunk and chunk.choices and chunk.choices[0].delta.content:
-                    yield chunk.choices[0].delta.content
-                    
-        except Exception as e:
-            yield f"Error: {str(e)}" 
