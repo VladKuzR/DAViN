@@ -313,17 +313,23 @@ body {
 }
 
 .results-section {
+    display: none;
+    /* Hide by default */
     margin-top: 30px;
     padding: 20px;
-    background-color: #ffffff;
+    background: rgba(0, 0, 0, 0.7);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: #00fff2;
 }
 
 .results-section h2 {
     margin: 0 0 20px 0;
-    color: #333;
+    color: #00fff2;
     font-size: 24px;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+    padding-bottom: 10px;
 }
 
 .results-container {
@@ -334,21 +340,22 @@ body {
 .insights-container {
     margin-top: 20px;
     padding: 20px;
-    background-color: #f5f5f5;
+    background: rgba(0, 20, 30, 0.5);
     border-radius: 8px;
+    border: 1px solid rgba(0, 255, 255, 0.1);
 }
 
 .insight-section {
     margin-bottom: 20px;
     padding: 15px;
-    background-color: white;
+    background: rgba(0, 20, 30, 0.7);
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.1);
 }
 
 .insight-section h4 {
     margin: 0 0 10px 0;
-    color: #333;
+    color: #00fff2;
     font-size: 16px;
     font-weight: 600;
 }
@@ -362,9 +369,10 @@ body {
 .loading {
     padding: 30px;
     text-align: center;
-    background-color: #f5f5f5;
+    background: rgba(0, 20, 30, 0.5);
     border-radius: 8px;
     margin-top: 20px;
+    border: 1px solid rgba(0, 255, 255, 0.1);
 }
 
 .loading-spinner {
@@ -380,13 +388,13 @@ body {
 
 .loading-message {
     font-size: 18px;
-    color: #333;
+    color: #00fff2;
     margin-bottom: 8px;
 }
 
 .loading-submessage {
     font-size: 14px;
-    color: #666;
+    color: rgba(0, 255, 242, 0.7);
 }
 
 @keyframes spin {
@@ -402,10 +410,11 @@ body {
 .error {
     padding: 20px;
     text-align: center;
-    background-color: #fee;
-    color: #c00;
+    background: rgba(255, 0, 0, 0.1);
+    color: #ff6b6b;
     border-radius: 8px;
     margin-top: 20px;
+    border: 1px solid rgba(255, 0, 0, 0.2);
 }
 
 .processing-time {
@@ -428,7 +437,7 @@ body {
 
 /* Markdown content styles */
 .insight-section div {
-    color: #333;
+    color: rgba(0, 255, 242, 0.9);
     line-height: 1.6;
 }
 
@@ -439,7 +448,7 @@ body {
 .insight-section h5,
 .insight-section h6 {
     margin: 1em 0 0.5em;
-    color: #222;
+    color: #00fff2;
 }
 
 .insight-section p {
@@ -457,7 +466,8 @@ body {
 }
 
 .insight-section code {
-    background-color: #f5f5f5;
+    background: rgba(0, 255, 242, 0.1);
+    color: #00fff2;
     padding: 0.2em 0.4em;
     border-radius: 3px;
     font-family: monospace;
@@ -465,11 +475,12 @@ body {
 }
 
 .insight-section pre {
-    background-color: #f5f5f5;
+    background: rgba(0, 255, 242, 0.05);
     padding: 1em;
     border-radius: 4px;
     overflow-x: auto;
     margin: 1em 0;
+    border: 1px solid rgba(0, 255, 242, 0.1);
 }
 
 .insight-section pre code {
@@ -478,10 +489,10 @@ body {
 }
 
 .insight-section blockquote {
-    border-left: 4px solid #ddd;
+    border-left: 4px solid rgba(0, 255, 242, 0.3);
     margin: 1em 0;
     padding-left: 1em;
-    color: #666;
+    color: rgba(0, 255, 242, 0.7);
 }
 
 .insight-section table {
@@ -508,12 +519,13 @@ body {
 }
 
 .insight-section a {
-    color: #0066cc;
+    color: #00fff2;
     text-decoration: none;
+    border-bottom: 1px solid rgba(0, 255, 242, 0.3);
 }
 
 .insight-section a:hover {
-    text-decoration: underline;
+    border-bottom-color: #00fff2;
 }
 
 /* Custom Scrollbar Styles */

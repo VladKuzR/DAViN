@@ -163,6 +163,9 @@ $(document).ready(function () {
 
     // Update the submit button handler
     $('#submitButton').on('click', async function () {
+        // Show the results section when submit is clicked
+        $('.results-section').show();
+
         console.log('Submit button clicked');
 
         try {
