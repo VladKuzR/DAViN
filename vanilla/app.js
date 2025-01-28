@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    const ws = new WebSocket('wss://davin.my-backend.site/ws');
     // State management
     const state = {
         phase: [0, 100],
@@ -455,7 +456,7 @@ $(document).ready(function () {
         const chatResponse = insightsContainer.querySelector('.chat-response');
 
         // Initialize WebSocket connection
-        const ws = new WebSocket('wss://davin.my-backend.site/ws');
+
         let currentResponse = '';
 
         ws.onopen = () => {
