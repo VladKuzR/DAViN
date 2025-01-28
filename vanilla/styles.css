@@ -24,7 +24,7 @@ body {
     flex-direction: column;
     overflow: hidden;
     backdrop-filter: blur(10px);
-    max-width: 480px;
+    /* max-width: 480px; */
     margin: 0 auto;
 }
 
