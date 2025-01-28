@@ -179,7 +179,7 @@ $(document).ready(function () {
             };
             console.log('Sending request with payload:', requestPayload);
 
-            const response = await fetch('http://localhost:8000/api/analytics', {
+            const response = await fetch('https://davin.my-backend.site:8000/api/analytics', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
