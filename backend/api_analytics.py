@@ -372,9 +372,6 @@ async def test_airtable_connection():
 @app.post("/api/chat")
 async def chat_with_ai(request: ChatRequest):
     try:
-        # Log the incoming request
-        logger.info(f"Received chat request: {request}")
-        
         # Get cached insights first
         insights = get_cached_ai_insights(
             request.item_key,
@@ -391,7 +388,7 @@ async def chat_with_ai(request: ChatRequest):
         
         return {"response": response}
     except Exception as e:
-        logger.error(f"Chat error: {e}")
+        logging.error(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
