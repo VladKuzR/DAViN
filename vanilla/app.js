@@ -468,18 +468,23 @@ $(document).ready(function () {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        item_key: insights.item_key,
+                        item_key: insights.item_key || '',
                         message: question,
-                        phase: insights.phase_number,
-                        division: insights.division,
-                        wbs: insights.wbs_category
+                        phase: String(insights.phase_number || ''),
+                        division: String(insights.division || ''),
+                        wbs: String(insights.wbs_category || '')
                     })
                 });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
                 const data = await response.json();
                 chatResponse.innerHTML = marked.parse(data.response);
             } catch (error) {
-                chatResponse.textContent = 'Error: Could not get response';
+                console.error('Chat error:', error);
+                chatResponse.textContent = `Error: ${error.message}`;
             }
         });
 
