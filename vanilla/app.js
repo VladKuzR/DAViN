@@ -435,7 +435,7 @@ $(document).ready(function () {
             resultsContainer.innerHTML = '<div class="error">No insights available for this item.</div>';
         }
 
-        // Add chat interface
+        // Modify chat interface HTML
         const chatHtml = `
             <div class="chat-container">
                 <h4 class="chat-header">Ask about these insights</h4>
@@ -449,44 +449,56 @@ $(document).ready(function () {
 
         insightsContainer.insertAdjacentHTML('beforeend', chatHtml);
 
-        // Add chat functionality
+        // Add chat functionality with WebSocket
         const chatInput = insightsContainer.querySelector('.chat-input');
         const chatSubmit = insightsContainer.querySelector('.chat-submit');
         const chatResponse = insightsContainer.querySelector('.chat-response');
 
-        chatSubmit.addEventListener('click', async () => {
+        // Initialize WebSocket connection
+        const ws = new WebSocket('wss://davin.my-backend.site/ws');
+        let currentResponse = '';
+
+        ws.onopen = () => {
+            console.log('Chat WebSocket connected');
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.type === 'chat_token') {
+                if (!chatResponse.style.display || chatResponse.style.display === 'none') {
+                    chatResponse.style.display = 'block';
+                }
+                currentResponse += data.token;
+                chatResponse.innerHTML = marked.parse(currentResponse);
+            } else if (data.type === 'chat_error') {
+                chatResponse.style.display = 'block';
+                chatResponse.textContent = `Error: ${data.error}`;
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            chatResponse.style.display = 'block';
+            chatResponse.textContent = 'Error: Could not connect to chat service';
+        };
+
+        chatSubmit.addEventListener('click', () => {
             const question = chatInput.value.trim();
             if (!question) return;
 
+            currentResponse = ''; // Reset current response
             chatResponse.style.display = 'block';
-            chatResponse.textContent = 'Thinking...';
+            chatResponse.textContent = '';
 
-            try {
-                const response = await fetch('https://davin.my-backend.site/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        item_key: insights.item_key || '',
-                        message: question,
-                        phase: insights.phase_number?.toString() || '',
-                        division: insights.division || '',
-                        wbs: insights.wbs_category || ''
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || 'Failed to get response');
-                }
-
-                const data = await response.json();
-                chatResponse.innerHTML = marked.parse(data.response);
-            } catch (error) {
-                console.error('Chat error:', error);
-                chatResponse.textContent = `Error: ${error.message}`;
-            }
+            ws.send(JSON.stringify({
+                type: 'chat',
+                item_key: insights.item_key || '',
+                message: question,
+                phase: insights.phase_number?.toString() || '',
+                division: insights.division || '',
+                wbs: insights.wbs_category || ''
+            }));
         });
 
         // Allow Enter key to submit

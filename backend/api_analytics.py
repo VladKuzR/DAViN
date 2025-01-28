@@ -13,6 +13,8 @@ from functools import lru_cache
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import json
+import asyncio
 
 # Load environment variables
 load_dotenv()
@@ -42,12 +44,50 @@ async def websocket_endpoint(websocket: WebSocket):
     active_connections.add(websocket)
     try:
         while True:
-            # Keep the connection alive
-            await websocket.receive_text()
+            # Keep the connection alive and handle incoming messages
+            data = await websocket.receive_json()
+            
+            if data.get("type") == "chat":
+                await handle_chat_message(websocket, data)
+            else:
+                # Handle other types of messages (progress updates etc)
+                await websocket.receive_text()
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
     finally:
         active_connections.remove(websocket)
+
+async def handle_chat_message(websocket: WebSocket, data: Dict):
+    try:
+        # Get cached insights
+        insights = get_cached_ai_insights(
+            data.get("item_key"),
+            data.get("phase"),
+            data.get("division"),
+            data.get("wbs")
+        )
+        
+        # Initialize AI agent
+        ai_agent = ConstructionAIAgent()
+        
+        # Get streaming response from AI agent
+        async for token in ai_agent.stream_chat_with_insight(insights, data.get("message")):
+            await websocket.send_json({
+                "type": "chat_token",
+                "token": token
+            })
+            
+        # Send completion message
+        await websocket.send_json({
+            "type": "chat_complete"
+        })
+        
+    except Exception as e:
+        logger.error(f"Chat error: {e}")
+        await websocket.send_json({
+            "type": "chat_error",
+            "error": str(e)
+        })
 
 # Helper function to send updates to all connected clients
 async def broadcast_progress(message: str, progress: float = None):
@@ -371,6 +411,7 @@ async def test_airtable_connection():
 
 @app.post("/api/chat")
 async def chat_with_ai(request: ChatRequest):
+    logger.warning("Deprecated: Use WebSocket endpoint for chat instead")
     try:
         # Get cached insights first
         insights = get_cached_ai_insights(

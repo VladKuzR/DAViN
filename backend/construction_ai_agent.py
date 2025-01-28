@@ -196,3 +196,17 @@ class ConstructionAIAgent:
         )
 
         return response.choices[0].message.content 
+
+    async def stream_chat_with_insight(self, insights, message):
+        """Stream the chat response token by token"""
+        try:
+            # Initialize your LLM with streaming capability
+            # This is an example - modify according to your actual LLM implementation
+            async for token in self.client.stream(
+                prompt=f"Context: {insights}\nQuestion: {message}\nAnswer: ",
+                max_tokens=500
+            ):
+                yield token
+        except Exception as e:
+            logger.error(f"Error streaming chat response: {e}")
+            raise 
