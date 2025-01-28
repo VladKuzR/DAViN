@@ -317,7 +317,7 @@ body {
     padding: 20px;
     background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .results-section h2 {
@@ -327,7 +327,8 @@ body {
 }
 
 .results-container {
-    min-height: 200px; /* Ensure there's always space for results */
+    min-height: 200px;
+    /* Ensure there's always space for results */
 }
 
 .insights-container {
@@ -342,7 +343,7 @@ body {
     padding: 15px;
     background-color: white;
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .insight-section h4 {
@@ -389,8 +390,13 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .error {
@@ -418,4 +424,94 @@ body {
     border-bottom: 2px solid #eee;
     color: #333;
     font-size: 20px;
+}
+
+/* Markdown content styles */
+.insight-section div {
+    color: #333;
+    line-height: 1.6;
+}
+
+.insight-section h1,
+.insight-section h2,
+.insight-section h3,
+.insight-section h4,
+.insight-section h5,
+.insight-section h6 {
+    margin: 1em 0 0.5em;
+    color: #222;
+}
+
+.insight-section p {
+    margin: 0.5em 0;
+}
+
+.insight-section ul,
+.insight-section ol {
+    margin: 0.5em 0;
+    padding-left: 2em;
+}
+
+.insight-section li {
+    margin: 0.3em 0;
+}
+
+.insight-section code {
+    background-color: #f5f5f5;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+.insight-section pre {
+    background-color: #f5f5f5;
+    padding: 1em;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+.insight-section pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.insight-section blockquote {
+    border-left: 4px solid #ddd;
+    margin: 1em 0;
+    padding-left: 1em;
+    color: #666;
+}
+
+.insight-section table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+.insight-section th,
+.insight-section td {
+    border: 1px solid #ddd;
+    padding: 0.5em;
+    text-align: left;
+}
+
+.insight-section th {
+    background-color: #f5f5f5;
+}
+
+.insight-section img {
+    max-width: 100%;
+    height: auto;
+    margin: 1em 0;
+}
+
+.insight-section a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.insight-section a:hover {
+    text-decoration: underline;
 }

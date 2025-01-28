@@ -146,12 +146,12 @@ $(document).ready(function () {
         state.completionStatus.incompleted = this.checked;
     });
 
- 
+
     // Update the loading display function
     function showLoading(message) {
         const resultsContainer = document.getElementById('resultsContainer');
         if (!resultsContainer) return;
-        
+
         resultsContainer.innerHTML = `
             <div class="loading">
                 <div class="loading-spinner"></div>
@@ -164,10 +164,10 @@ $(document).ready(function () {
     // Update the submit button handler
     $('#submitButton').on('click', async function () {
         console.log('Submit button clicked');
-        
+
         try {
             showLoading('Generating AI insights...');
-            
+
             const requestPayload = {
                 selected_divisions: state.divisions.map(d => d.value),
                 phase_range: state.phase,
@@ -204,67 +204,6 @@ $(document).ready(function () {
             const resultsContainer = document.getElementById('resultsContainer');
             resultsContainer.innerHTML = `<div class="error">Failed to generate insights: ${error.message}</div>`;
         }
-
-    // Initialize Submit Button
-    $('#submitButton').on('click', function () {
-        const selectedData = {
-            phase: {
-                min: parseInt($('#phaseMin').val()),
-                max: parseInt($('#phaseMax').val())
-            },
-            duration: {
-                min: parseInt($('#durationMin').val()),
-                max: parseInt($('#durationMax').val())
-            },
-            divisions: $('#divisionSelect').find('input:checked').map(function () {
-                return {
-                    value: $(this).val(),
-                    label: $(this).next('span').text()
-                };
-            }).get(),
-            wbsCategories: $('#wbsSelect').find('input:checked').map(function () {
-                return {
-                    value: $(this).val(),
-                    label: $(this).next('span').text()
-                };
-            }).get(),
-            completionStatus: {
-                completed: $('#completedCheckbox').is(':checked'),
-                incompleted: $('#incompletedCheckbox').is(':checked')
-            },
-            dateRange: {
-                startDate: $('#startDate').val(),
-                endDate: $('#endDate').val()
-            }
-        };
-
-        const outputData = {
-            filters: {
-                phase: {
-                    min: selectedData.phase.min,
-                    max: selectedData.phase.max
-                },
-                duration: {
-                    min: selectedData.duration.min,
-                    max: selectedData.duration.max
-                },
-                divisions: selectedData.divisions.map(d => ({
-                    id: d.value,
-                    name: d.label
-                })),
-                wbsCategories: selectedData.wbsCategories.map(w => ({
-                    id: w.value,
-                    name: w.label
-                })),
-                completionStatus: selectedData.completionStatus,
-                dateRange: {
-                    from: selectedData.dateRange.startDate,
-                    to: selectedData.dateRange.endDate
-                }
-            }
-        };
-
-        console.log(JSON.stringify(outputData, null, 2));
     });
 
     // Initialize components
@@ -368,7 +307,7 @@ $(document).ready(function () {
 
     function renderInsights(insights) {
         console.log('Rendering insights:', insights);
-        
+
         const resultsContainer = document.getElementById('resultsContainer');
         if (!resultsContainer) {
             console.error('Results container not found!');
@@ -407,15 +346,16 @@ $(document).ready(function () {
                 hasContent = true;
                 const section = document.createElement('div');
                 section.className = 'insight-section';
-                
+
                 const heading = document.createElement('h4');
                 heading.textContent = title;
-                
-                const text = document.createElement('p');
-                text.textContent = content;
-                
+
+                const contentDiv = document.createElement('div');
+                // Use marked to parse markdown content
+                contentDiv.innerHTML = marked.parse(content);
+
                 section.appendChild(heading);
-                section.appendChild(text);
+                section.appendChild(contentDiv);
                 insightsContainer.appendChild(section);
             }
         });
