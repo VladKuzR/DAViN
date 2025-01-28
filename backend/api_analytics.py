@@ -266,8 +266,8 @@ async def get_analytics(request: AnalyticsRequest, max_records: int = DEFAULT_MA
         try:
             filter_parts = []
             
-            # Phase range filter
-            phase_filter = f"AND({{{AIRTABLE_PHASE_FIELD}}} >= '{request.phase_range[0]}', {{{AIRTABLE_PHASE_FIELD}}} <= '{request.phase_range[1]}')"
+            # Phase range filter - remove quotes around numbers
+            phase_filter = f"AND({{{AIRTABLE_PHASE_FIELD}}} >= {request.phase_range[0]}, {{{AIRTABLE_PHASE_FIELD}}} <= {request.phase_range[1]})"
             filter_parts.append(phase_filter)
             
             # WBS Category filter with validation
