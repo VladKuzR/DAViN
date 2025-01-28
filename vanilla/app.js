@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    const ws = new WebSocket('wss://davin.my-backend.site/ws');
     // State management
     const state = {
         phase: [0, 100],
@@ -436,7 +435,7 @@ $(document).ready(function () {
             resultsContainer.innerHTML = '<div class="error">No insights available for this item.</div>';
         }
 
-        // Modify chat interface HTML
+        // Replace the chat interface HTML with WebSocket version
         const chatHtml = `
             <div class="chat-container">
                 <h4 class="chat-header">Ask about these insights</h4>
@@ -450,50 +449,50 @@ $(document).ready(function () {
 
         insightsContainer.insertAdjacentHTML('beforeend', chatHtml);
 
-        // Add chat functionality with WebSocket
+        // Add WebSocket chat functionality
         const chatInput = insightsContainer.querySelector('.chat-input');
         const chatSubmit = insightsContainer.querySelector('.chat-submit');
         const chatResponse = insightsContainer.querySelector('.chat-response');
 
         // Initialize WebSocket connection
+        const ws = new WebSocket('wss://your-domain.com/ws/chat');
+
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+        };
 
         let currentResponse = '';
 
-        ws.onopen = () => {
-            console.log('Chat WebSocket connected');
-        };
-
         ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-
-            if (data.type === 'chat_token') {
-                if (!chatResponse.style.display || chatResponse.style.display === 'none') {
-                    chatResponse.style.display = 'block';
-                }
-                currentResponse += data.token;
-                chatResponse.innerHTML = marked.parse(currentResponse);
-            } else if (data.type === 'chat_error') {
-                chatResponse.style.display = 'block';
-                chatResponse.textContent = `Error: ${data.error}`;
+            if (event.data === '[DONE]') {
+                // Finish the response
+                return;
             }
+
+            currentResponse += event.data;
+            chatResponse.innerHTML = marked.parse(currentResponse);
+            chatResponse.scrollTop = chatResponse.scrollHeight;
         };
 
         ws.onerror = (error) => {
             console.error('WebSocket error:', error);
-            chatResponse.style.display = 'block';
             chatResponse.textContent = 'Error: Could not connect to chat service';
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket disconnected');
         };
 
         chatSubmit.addEventListener('click', () => {
             const question = chatInput.value.trim();
             if (!question) return;
 
-            currentResponse = ''; // Reset current response
             chatResponse.style.display = 'block';
+            currentResponse = '';
             chatResponse.textContent = '';
 
+            // Send the chat request through WebSocket
             ws.send(JSON.stringify({
-                type: 'chat',
                 item_key: insights.item_key || '',
                 message: question,
                 phase: insights.phase_number?.toString() || '',

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, HTTPException
+from fastapi import FastAPI, WebSocket, HTTPException, WebSocketDisconnect
 from pydantic import BaseModel
 from typing import List, Dict, Optional, Set
 from airtable import Airtable
@@ -37,6 +37,23 @@ app.add_middleware(
 # Store active WebSocket connections
 active_connections: Set[WebSocket] = set()
 
+# Create a WebSocket manager
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+manager = ConnectionManager()
+
 # WebSocket connection handler
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -44,50 +61,12 @@ async def websocket_endpoint(websocket: WebSocket):
     active_connections.add(websocket)
     try:
         while True:
-            # Keep the connection alive and handle incoming messages
-            data = await websocket.receive_json()
-            
-            if data.get("type") == "chat":
-                await handle_chat_message(websocket, data)
-            else:
-                # Handle other types of messages (progress updates etc)
-                await websocket.receive_text()
+            # Keep the connection alive
+            await websocket.receive_text()
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
     finally:
         active_connections.remove(websocket)
-
-async def handle_chat_message(websocket: WebSocket, data: Dict):
-    try:
-        # Get cached insights
-        insights = get_cached_ai_insights(
-            data.get("item_key"),
-            data.get("phase"),
-            data.get("division"),
-            data.get("wbs")
-        )
-        
-        # Initialize AI agent
-        ai_agent = ConstructionAIAgent()
-        
-        # Get streaming response from AI agent
-        async for token in ai_agent.stream_chat_with_insight(insights, data.get("message")):
-            await websocket.send_json({
-                "type": "chat_token",
-                "token": token
-            })
-            
-        # Send completion message
-        await websocket.send_json({
-            "type": "chat_complete"
-        })
-        
-    except Exception as e:
-        logger.error(f"Chat error: {e}")
-        await websocket.send_json({
-            "type": "chat_error",
-            "error": str(e)
-        })
 
 # Helper function to send updates to all connected clients
 async def broadcast_progress(message: str, progress: float = None):
@@ -411,7 +390,6 @@ async def test_airtable_connection():
 
 @app.post("/api/chat")
 async def chat_with_ai(request: ChatRequest):
-    logger.warning("Deprecated: Use WebSocket endpoint for chat instead")
     try:
         # Get cached insights first
         insights = get_cached_ai_insights(
@@ -431,6 +409,41 @@ async def chat_with_ai(request: ChatRequest):
     except Exception as e:
         logging.error(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# Add new WebSocket endpoint for streaming chat
+@app.websocket("/ws/chat")
+async def websocket_chat_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # Wait for incoming message
+            data = await websocket.receive_text()
+            request_data = json.loads(data)
+            
+            # Get cached insights
+            insights = get_cached_ai_insights(
+                request_data.get('item_key'),
+                request_data.get('phase'),
+                request_data.get('division'),
+                request_data.get('wbs')
+            )
+            
+            # Initialize AI agent with streaming capability
+            ai_agent = ConstructionAIAgent()
+            
+            # Stream the response
+            async for token in ai_agent.stream_chat_with_insight(insights, request_data['message']):
+                await manager.send_message(token, websocket)
+                
+            # Send end marker
+            await manager.send_message("[DONE]", websocket)
+            
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        await manager.send_message(f"Error: {str(e)}", websocket)
+        manager.disconnect(websocket)
 
 if __name__ == "__main__":
     import uvicorn

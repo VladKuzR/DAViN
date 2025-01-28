@@ -1,8 +1,9 @@
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, AsyncGenerator
 from pydantic import BaseModel
+import openai
 
 # Load environment variables
 load_dotenv()
@@ -197,16 +198,27 @@ class ConstructionAIAgent:
 
         return response.choices[0].message.content 
 
-    async def stream_chat_with_insight(self, insights, message):
-        """Stream the chat response token by token"""
+    async def stream_chat_with_insight(self, insights, user_message) -> AsyncGenerator[str, None]:
         try:
-            # Initialize your LLM with streaming capability
-            # This is an example - modify according to your actual LLM implementation
-            async for token in self.client.stream(
-                prompt=f"Context: {insights}\nQuestion: {message}\nAnswer: ",
-                max_tokens=500
-            ):
-                yield token
+            # Prepare the context from insights
+            context = self._prepare_context(insights)
+            
+            # Create the messages for the chat
+            messages = [
+                {"role": "system", "content": "You are a helpful construction expert assistant."},
+                {"role": "user", "content": f"Context: {context}\n\nQuestion: {user_message}"}
+            ]
+            
+            # Stream the response from OpenAI
+            response_stream = await openai.ChatCompletion.acreate(
+                model="gpt-4",
+                messages=messages,
+                stream=True
+            )
+            
+            async for chunk in response_stream:
+                if chunk and chunk.choices and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+                    
         except Exception as e:
-            logger.error(f"Error streaming chat response: {e}")
-            raise 
+            yield f"Error: {str(e)}" 
