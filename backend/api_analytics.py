@@ -204,11 +204,11 @@ class AnalyticsResponse(BaseModel):
     processing_time: float
 
 class ChatRequest(BaseModel):
-    item_key: str
+    item_key: Optional[str] = None
     message: str
-    phase: str
-    division: str
-    wbs: str
+    phase: Optional[str] = None
+    division: Optional[str] = None
+    wbs: Optional[str] = None
 
 # Add cache for AI insights
 @lru_cache(maxsize=100)
