@@ -222,7 +222,7 @@ def get_cached_ai_insights(item_key: str, phase: str, division: str, wbs: str):
         'WBS Category Level 1': wbs
     })
 
-@app.post("/api/analytics", response_model=AnalyticsResponse)
+@app.post("/analytics", response_model=AnalyticsResponse)
 async def get_analytics(request: AnalyticsRequest, max_records: int = 3):
     try:
         start_time = time.time()
@@ -369,7 +369,7 @@ async def test_airtable_connection():
         logger.error(f"Airtable connection test failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/chat")
+@app.post("/chat")
 async def chat_with_ai(request: ChatRequest):
     try:
         # Get cached insights first
