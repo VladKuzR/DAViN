@@ -159,4 +159,40 @@ class ConstructionAIAgent:
         for section in sections:
             if keyword.lower() in section.lower():
                 return section.strip()
-        return "" 
+        return ""
+
+    def chat_with_insight(self, insight: ConstructionInsight, user_message: str) -> str:
+        """Chat with the AI about specific construction insights"""
+        
+        prompt = f"""
+        You are a construction expert assistant. Use the following construction insight data to answer the user's question.
+        Be specific and reference the data when possible.
+
+        Construction Item Data:
+        - Key: {insight.item_key}
+        - Phase: {insight.phase_number}
+        
+        Available Information:
+        - Construction Details: {insight.construction_details}
+        - Best Practices: {insight.best_practices}
+        - Safety Considerations: {insight.safety_considerations}
+        - Dependencies: {insight.dependencies}
+        - Labor Requirements: {insight.estimated_labor_hours}
+        - Material Specifications: {insight.material_specifications}
+        - Quality Control: {insight.quality_control}
+        - Coordination Notes: {insight.coordination_notes}
+
+        User Question: {user_message}
+
+        Provide a clear, concise, and professional response focusing on the specific aspects mentioned in the question.
+        """
+
+        response = self.client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[
+                {"role": "system", "content": "You are a knowledgeable construction expert providing detailed technical information."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        return response.choices[0].message.content 

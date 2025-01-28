@@ -161,6 +161,62 @@ $(document).ready(function () {
         `;
     }
 
+    // WebSocket connection
+    let ws;
+
+    function connectWebSocket() {
+        ws = new WebSocket('ws://localhost:8000/ws');
+        
+        ws.onopen = function() {
+            console.log('WebSocket connected');
+        };
+        
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            updateProgress(data.message, data.progress);
+        };
+        
+        ws.onclose = function() {
+            console.log('WebSocket disconnected');
+            // Attempt to reconnect after 5 seconds
+            setTimeout(connectWebSocket, 5000);
+        };
+        
+        ws.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+    }
+
+    // Initialize WebSocket connection
+    connectWebSocket();
+
+    function updateProgress(message, progress) {
+        const resultsContainer = document.getElementById('resultsContainer');
+        if (!resultsContainer) return;
+        
+        if (progress === -1) {
+            // Error state
+            resultsContainer.innerHTML = `
+                <div class="error">
+                    <div class="error-message">${message}</div>
+                </div>
+            `;
+            return;
+        }
+        
+        const progressPercent = Math.round(progress * 100);
+        resultsContainer.innerHTML = `
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-message">${message}</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                </div>
+                <div class="progress-text">${progressPercent}%</div>
+            </div>
+        `;
+    }
+
     // Update the submit button handler
     $('#submitButton').on('click', async function () {
         // Show the results section when submit is clicked
@@ -204,8 +260,7 @@ $(document).ready(function () {
 
         } catch (error) {
             console.error('Error submitting data:', error);
-            const resultsContainer = document.getElementById('resultsContainer');
-            resultsContainer.innerHTML = `<div class="error">Failed to generate insights: ${error.message}</div>`;
+            updateProgress(`Error: ${error.message}`, -1);
         }
     });
 
@@ -369,6 +424,61 @@ $(document).ready(function () {
         } else {
             resultsContainer.innerHTML = '<div class="error">No insights available for this item.</div>';
         }
+
+        // Add chat interface
+        const chatHtml = `
+            <div class="chat-container">
+                <h4 class="chat-header">Ask about these insights</h4>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" placeholder="Ask a question about this construction item...">
+                    <button class="chat-submit">Ask</button>
+                </div>
+                <div class="chat-response" style="display: none;"></div>
+            </div>
+        `;
+        
+        insightsContainer.insertAdjacentHTML('beforeend', chatHtml);
+        
+        // Add chat functionality
+        const chatInput = insightsContainer.querySelector('.chat-input');
+        const chatSubmit = insightsContainer.querySelector('.chat-submit');
+        const chatResponse = insightsContainer.querySelector('.chat-response');
+        
+        chatSubmit.addEventListener('click', async () => {
+            const question = chatInput.value.trim();
+            if (!question) return;
+            
+            chatResponse.style.display = 'block';
+            chatResponse.textContent = 'Thinking...';
+            
+            try {
+                const response = await fetch('https://davin.my-backend.site/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        item_key: insights.item_key,
+                        message: question,
+                        phase: insights.phase_number,
+                        division: insights.division,
+                        wbs: insights.wbs_category
+                    })
+                });
+                
+                const data = await response.json();
+                chatResponse.innerHTML = marked.parse(data.response);
+            } catch (error) {
+                chatResponse.textContent = 'Error: Could not get response';
+            }
+        });
+        
+        // Allow Enter key to submit
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                chatSubmit.click();
+            }
+        });
     }
 
     // Add this to verify the script is loaded
