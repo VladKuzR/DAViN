@@ -37,6 +37,7 @@ async function fetchAirtableData() {
         };
 
         // Process the data
+        console.log('Data:', [...new Set(data.map(item => item.Division))]);
         const processedData = {
             phases: [...new Set(data.map(item => Number(item.Phase) || 0))],
             divisions: [...new Set(data.map(item => item.Division))]
@@ -44,7 +45,7 @@ async function fetchAirtableData() {
                 .map(div => String(div).trim())
                 .filter(div => div !== '')
                 .map(div => ({
-                    value: div,
+                    value: divisionMapping[div],
                     label: divisionMapping[div] || `Division ${div}`,
                     sortOrder: Number(div.replace(/\D/g, '')) || 0
                 }))
