@@ -97,6 +97,37 @@ AIRTABLE_PHASE_FIELD = "Phase"
 AIRTABLE_WBS_FIELD = "WBS Category Level 1"
 AIRTABLE_DURATION_FIELD = "Duration"
 
+# Add these constants near the top with other constants
+MIN_PHASE = 0
+MAX_PHASE = 16
+DEFAULT_MAX_RECORDS = 3
+
+# Add this validation function
+def validate_phase_range(phase_range: tuple[int, int]) -> tuple[int, int]:
+    start, end = phase_range
+    if not (MIN_PHASE <= start <= MAX_PHASE and MIN_PHASE <= end <= MAX_PHASE):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Phase range must be between {MIN_PHASE} and {MAX_PHASE}"
+        )
+    if start > end:
+        raise HTTPException(
+            status_code=400,
+            detail="Start phase must be less than or equal to end phase"
+        )
+    return phase_range
+
+# Add WBS categories cache
+@lru_cache(maxsize=1)
+def get_wbs_categories_cached():
+    """Cache WBS categories to avoid frequent Airtable calls"""
+    records = airtable.get_all(fields=[AIRTABLE_WBS_FIELD])
+    return list(set(
+        record['fields'].get(AIRTABLE_WBS_FIELD)
+        for record in records
+        if AIRTABLE_WBS_FIELD in record['fields']
+    ))
+
 # Test direct API access first
 try:
     headers = {
@@ -223,35 +254,50 @@ def get_cached_ai_insights(item_key: str, phase: str, division: str, wbs: str):
     })
 
 @app.post("/api/analytics", response_model=AnalyticsResponse)
-async def get_analytics(request: AnalyticsRequest, max_records: int = 3):
+async def get_analytics(request: AnalyticsRequest, max_records: int = DEFAULT_MAX_RECORDS):
     try:
         start_time = time.time()
         await broadcast_progress("Starting analysis...", 0)
         
-        # Build filter formula with correct field names
-        filter_parts = []
+        # Validate phase range
+        validate_phase_range(request.phase_range)
         
-        # Phase range filter (using Phase field)
-        phase_filter = f"AND({{{AIRTABLE_PHASE_FIELD}}} >= '{request.phase_range[0]}', {{{AIRTABLE_PHASE_FIELD}}} <= '{request.phase_range[1]}')"
-        filter_parts.append(phase_filter)
-        
-        # WBS Category filter (using exact field name)
-        if request.wbs_categories:
-            wbs_conditions = [
-                f"{{{AIRTABLE_WBS_FIELD}}} = '{category}'"
-                for category in request.wbs_categories
-            ]
-            wbs_filter = f"OR({','.join(wbs_conditions)})"
-            filter_parts.append(wbs_filter)
-        
-        # Duration filter (using exact field name)
-        duration_filter = f"AND({{{AIRTABLE_DURATION_FIELD}}} >= {request.duration_range[0]}, {{{AIRTABLE_DURATION_FIELD}}} <= {request.duration_range[1]})"
-        filter_parts.append(duration_filter)
-        
-        # Combine all filters
-        filter_formula = f"AND({','.join(filter_parts)})"
-        logger.info(f"Using filter formula: {filter_formula}")
-        
+        # Build filter formula with error handling
+        try:
+            filter_parts = []
+            
+            # Phase range filter
+            phase_filter = f"AND({{{AIRTABLE_PHASE_FIELD}}} >= '{request.phase_range[0]}', {{{AIRTABLE_PHASE_FIELD}}} <= '{request.phase_range[1]}')"
+            filter_parts.append(phase_filter)
+            
+            # WBS Category filter with validation
+            if request.wbs_categories:
+                valid_categories = get_wbs_categories_cached()
+                invalid_categories = set(request.wbs_categories) - set(valid_categories)
+                if invalid_categories:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Invalid WBS categories: {', '.join(invalid_categories)}"
+                    )
+                
+                wbs_conditions = [
+                    f"{{{AIRTABLE_WBS_FIELD}}} = '{category}'"
+                    for category in request.wbs_categories
+                ]
+                wbs_filter = f"OR({','.join(wbs_conditions)})"
+                filter_parts.append(wbs_filter)
+            
+            # Duration filter
+            duration_filter = f"AND({{{AIRTABLE_DURATION_FIELD}}} >= {request.duration_range[0]}, {{{AIRTABLE_DURATION_FIELD}}} <= {request.duration_range[1]})"
+            filter_parts.append(duration_filter)
+            
+            filter_formula = f"AND({','.join(filter_parts)})"
+            logger.info(f"Using filter formula: {filter_formula}")
+            
+        except Exception as e:
+            logger.error(f"Error building filter formula: {e}")
+            raise HTTPException(status_code=400, detail=f"Error building filter: {str(e)}")
+
         await broadcast_progress("Querying Airtable...", 0.1)
         
         try:
