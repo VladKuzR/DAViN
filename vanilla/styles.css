@@ -515,3 +515,42 @@ body {
 .insight-section a:hover {
     text-decoration: underline;
 }
+
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 255, 242, 0.05);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 242, 0.3);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 242, 0.5);
+}
+
+/* Firefox scrollbar styles */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 242, 0.3) rgba(0, 255, 242, 0.05);
+}
+
+/* Custom scrollbar for dropdown content */
+.dropdown-content {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 242, 0.3) rgba(0, 255, 242, 0.05);
+}
+
+/* Custom scrollbar for code blocks */
+.insight-section pre {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 242, 0.3) rgba(0, 255, 242, 0.05);
+}
