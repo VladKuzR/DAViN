@@ -245,7 +245,7 @@ $(document).ready(function () {
             console.log('Form as an object:');
             console.log(requestPayload);
 
-            const response = await fetch('https://davin.my-backend.site/api/analytics', {
+            const response = await fetch('https://davin.my-backend.site/analytics', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
