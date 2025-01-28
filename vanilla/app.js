@@ -22,30 +22,16 @@ $(document).ready(function () {
         const $minValue = $(`#${sliderId}MinValue`);
         const $maxValue = $(`#${sliderId}MaxValue`);
 
-        function setInitialValues() {
-            const min = parseFloat($minInput.attr('min'));
-            const max = parseFloat($maxInput.attr('max'));
-            $minInput.val(min);
-            $maxInput.val(max);
-            state[stateKey] = [min, max];
-            updateDisplay();
-        }
-
-        function setMinMax() {
+        function updateSliderValues() {
             const minVal = parseFloat($minInput.val());
             const maxVal = parseFloat($maxInput.val());
 
-            if (minVal > maxVal) {
-                if ($(document.activeElement).is($minInput)) {
-                    $maxInput.val(minVal);
-                } else {
-                    $minInput.val(maxVal);
-                }
-            }
+            // Always show integers in the range-values spans
+            $(`#${sliderId.slice(0, -5)}MinValue`).text(Math.round(minVal));
+            $(`#${sliderId.slice(0, -5)}MaxValue`).text(Math.round(maxVal));
         }
 
-        function updateDisplay() {
-            setMinMax();
+        function updateProgress() {
             const min = parseFloat($minInput.val());
             const max = parseFloat($maxInput.val());
             const range = parseFloat($maxInput.attr('max')) - parseFloat($minInput.attr('min'));
@@ -53,26 +39,30 @@ $(document).ready(function () {
             const percent2 = ((max - $minInput.attr('min')) / range) * 100;
 
             $progress.css({
-                left: `${percent1}%`,
-                width: `${percent2 - percent1}%`
+                left: `${percent1}% `,
+                width: `${percent2 - percent1}% `
             });
 
-            // Update the display values with current slider values
-            if (sliderId === 'durationRange') {
-                $minValue.text(parseFloat(min).toFixed(1));
-                $maxValue.text(parseFloat(max).toFixed(1));
-            } else {
-                $minValue.text(parseInt(min));
-                $maxValue.text(parseInt(max));
-            }
+            // Update numerical display
+            updateSliderValues();
+
             state[stateKey] = [min, max];
         }
 
-        // Update on both input and change events for better responsiveness
-        $minInput.on('input', updateDisplay);
-        $maxInput.on('input', updateDisplay);
+        // Update values on any slider movement
+        $minInput.on('input', function () {
+            updateProgress();
+            updateSliderValues();
+        });
 
-        setInitialValues();
+        $maxInput.on('input', function () {
+            updateProgress();
+            updateSliderValues();
+        });
+
+        // Initial setup
+        updateProgress();
+        updateSliderValues();
     }
 
     // Initialize Multi-select Dropdowns
@@ -89,10 +79,10 @@ $(document).ready(function () {
         // Populate options
         options.forEach(option => {
             const $option = $(`
-                <label class="checkbox-wrapper">
-                    <input type="checkbox" value="${option.value}" checked>
-                    <span>${option.label}</span>
-                </label>
+            <label class="checkbox-wrapper">
+                <input type="checkbox" value="${option.value}" checked>
+                <span>${option.label}</span>
+            </label>
             `);
             $optionsContainer.append($option);
         });
@@ -147,18 +137,6 @@ $(document).ready(function () {
     }
 
     // Initialize Date Pickers
-    flatpickr('#startDate', {
-        onChange: ([date]) => {
-            state.startDate = date;
-        }
-    });
-
-    flatpickr('#endDate', {
-        onChange: ([date]) => {
-            state.endDate = date;
-        }
-    });
-
     // Initialize Completion Status
     $('#completedCheckbox').on('change', function () {
         state.completionStatus.completed = this.checked;
@@ -168,6 +146,7 @@ $(document).ready(function () {
         state.completionStatus.incompleted = this.checked;
     });
 
+ 
     // Update the loading display function
     function showLoading(message) {
         const resultsContainer = document.getElementById('resultsContainer');
@@ -225,6 +204,67 @@ $(document).ready(function () {
             const resultsContainer = document.getElementById('resultsContainer');
             resultsContainer.innerHTML = `<div class="error">Failed to generate insights: ${error.message}</div>`;
         }
+
+    // Initialize Submit Button
+    $('#submitButton').on('click', function () {
+        const selectedData = {
+            phase: {
+                min: parseInt($('#phaseMin').val()),
+                max: parseInt($('#phaseMax').val())
+            },
+            duration: {
+                min: parseInt($('#durationMin').val()),
+                max: parseInt($('#durationMax').val())
+            },
+            divisions: $('#divisionSelect').find('input:checked').map(function () {
+                return {
+                    value: $(this).val(),
+                    label: $(this).next('span').text()
+                };
+            }).get(),
+            wbsCategories: $('#wbsSelect').find('input:checked').map(function () {
+                return {
+                    value: $(this).val(),
+                    label: $(this).next('span').text()
+                };
+            }).get(),
+            completionStatus: {
+                completed: $('#completedCheckbox').is(':checked'),
+                incompleted: $('#incompletedCheckbox').is(':checked')
+            },
+            dateRange: {
+                startDate: $('#startDate').val(),
+                endDate: $('#endDate').val()
+            }
+        };
+
+        const outputData = {
+            filters: {
+                phase: {
+                    min: selectedData.phase.min,
+                    max: selectedData.phase.max
+                },
+                duration: {
+                    min: selectedData.duration.min,
+                    max: selectedData.duration.max
+                },
+                divisions: selectedData.divisions.map(d => ({
+                    id: d.value,
+                    name: d.label
+                })),
+                wbsCategories: selectedData.wbsCategories.map(w => ({
+                    id: w.value,
+                    name: w.label
+                })),
+                completionStatus: selectedData.completionStatus,
+                dateRange: {
+                    from: selectedData.dateRange.startDate,
+                    to: selectedData.dateRange.endDate
+                }
+            }
+        };
+
+        console.log(JSON.stringify(outputData, null, 2));
     });
 
     // Initialize components
@@ -241,8 +281,8 @@ $(document).ready(function () {
                 // Get actual min/max values
                 const phaseMin = Math.min(...data.processed.phases);
                 const phaseMax = Math.max(...data.processed.phases);
-                const durationMin = Math.min(...data.processed.durations);
-                const durationMax = Math.max(...data.processed.durations);
+                const durationMin = Math.round(Math.min(...data.processed.durations));
+                const durationMax = Math.round(Math.max(...data.processed.durations));
 
                 console.log('Phase range:', phaseMin, phaseMax); // Debug log
                 console.log('Duration range:', durationMin, durationMax); // Debug log
@@ -261,10 +301,16 @@ $(document).ready(function () {
                     $(this).attr({
                         'min': durationMin,
                         'max': durationMax,
-                        'step': (durationMax - durationMin),
+                        'step': 1,
                         'value': $(this).is('#durationMin') ? durationMin : durationMax
                     });
                 });
+
+                // Set initial span values
+                $('#phaseMinValue').text(phaseMin);
+                $('#phaseMaxValue').text(phaseMax);
+                $('#durationMinValue').text(Math.round(durationMin));
+                $('#durationMaxValue').text(Math.round(durationMax));
 
                 // Initialize components with real data
                 initMultiSelect('divisionSelect', data.processed.divisions);
@@ -273,10 +319,36 @@ $(document).ready(function () {
                 // Initialize date pickers with real date ranges
                 const dateConfig = {
                     minDate: data.ranges.dates.min,
-                    maxDate: data.ranges.dates.max
+                    maxDate: data.ranges.dates.max,
+                    defaultDate: data.ranges.dates.min, // Set default date for start
+                    disable: [
+                        {
+                            from: new Date(0), // Beginning of time
+                            to: new Date(data.ranges.dates.min - 86400000) // Day before min date
+                        },
+                        {
+                            from: new Date(data.ranges.dates.max.getTime() + 86400000), // Day after max date
+                            to: new Date(8640000000000000) // End of time
+                        }
+                    ],
+                    dateFormat: "Y-m-d",
+                    onChange: ([date]) => {
+                        state.startDate = date;
+                    }
                 };
+
+                // Initialize start date picker
                 flatpickr('#startDate', dateConfig);
-                flatpickr('#endDate', dateConfig);
+
+                // Initialize end date picker with max date as default
+                const endDateConfig = {
+                    ...dateConfig,
+                    defaultDate: data.ranges.dates.max,
+                    onChange: ([date]) => {
+                        state.endDate = date;
+                    }
+                };
+                flatpickr('#endDate', endDateConfig);
 
                 // Reinitialize range sliders with new values
                 initRangeSlider('phaseRange', 'phase');

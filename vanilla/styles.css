@@ -262,6 +262,38 @@ body {
     color: #00fff2 !important;
 }
 
+/* Calendar header styles */
+.flatpickr-current-month {
+    color: #00fff2 !important;
+}
+
+.flatpickr-current-month input.cur-year {
+    color: #00fff2 !important;
+}
+
+.flatpickr-monthDropdown-months {
+    color: #00fff2 !important;
+}
+
+.flatpickr-weekday {
+    color: #00fff2 !important;
+}
+
+.numInputWrapper span {
+    color: #00fff2 !important;
+}
+
+.flatpickr-monthDropdown-month {
+    color: #0d2337 !important;
+    background: #00fff2 !important;
+}
+
+/* Arrow buttons */
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+    fill: #00fff2 !important;
+}
+
 .flatpickr-day {
     color: #00fff2 !important;
 }
