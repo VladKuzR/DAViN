@@ -203,6 +203,13 @@ class AnalyticsResponse(BaseModel):
     ai_insights: Dict
     processing_time: float
 
+class ChatRequest(BaseModel):
+    item_key: str
+    message: str
+    phase: str
+    division: str
+    wbs: str
+
 # Add cache for AI insights
 @lru_cache(maxsize=100)
 def get_cached_ai_insights(item_key: str, phase: str, division: str, wbs: str):
@@ -360,6 +367,28 @@ async def test_airtable_connection():
         return {"status": "success", "message": "Successfully connected to Airtable"}
     except Exception as e:
         logger.error(f"Airtable connection test failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/chat")
+async def chat_with_ai(request: ChatRequest):
+    try:
+        # Get cached insights first
+        insights = get_cached_ai_insights(
+            request.item_key,
+            request.phase,
+            request.division,
+            request.wbs
+        )
+        
+        # Initialize AI agent
+        ai_agent = ConstructionAIAgent()
+        
+        # Get chat response
+        response = ai_agent.chat_with_insight(insights, request.message)
+        
+        return {"response": response}
+    except Exception as e:
+        logging.error(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

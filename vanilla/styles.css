@@ -566,3 +566,57 @@ body {
     scrollbar-width: thin;
     scrollbar-color: rgba(0, 255, 242, 0.3) rgba(0, 255, 242, 0.05);
 }
+
+.chat-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 20, 30, 0.7);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.chat-header {
+    color: #00fff2;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 4px;
+    background: rgba(0, 20, 30, 0.5);
+    color: #fff;
+    font-family: inherit;
+}
+
+.chat-submit {
+    padding: 8px 16px;
+    background: rgba(0, 255, 255, 0.2);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 4px;
+    color: #00fff2;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.chat-submit:hover {
+    background: rgba(0, 255, 255, 0.3);
+}
+
+.chat-response {
+    padding: 12px;
+    background: rgba(0, 20, 30, 0.5);
+    border-radius: 4px;
+    color: rgba(0, 255, 242, 0.9);
+    line-height: 1.5;
+    margin-top: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.1);
+}
